@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sympy.printing.pretty.pretty_symbology import line_width
+from arch import arch_model
+
 
 
 def addDatesCol(df):
@@ -72,11 +73,60 @@ def rollingStd(df, window = 60):
         cusum.append(s)
     df["cusum_vol"] = cusum
     df["cusum_event"] = df["cusum_vol"] > h
+    return df
 
 def plotVolatilityRollingStd(df, symbol):
     plt.figure(figsize=(12, 5))
     plt.plot(df.index, df["vol_proxy"], alpha=0.3, label="Log returns")
     plt.plot(df.index, df["rolling_std"], linewidth=2, label="Rolling std - 60 days" )
     plt.legend()
-    plt.title("Volatility proxy and rolling standard deviation")
+    plt.title(f"Volatility proxy and rolling standard deviation for {symbol}")
     plt.show()
+
+def plotOverlayEvents(df, symbol):
+    plt.figure(figsize=(12, 5))
+    plt.plot(df.index, df["rolling_std"], label="Rolling STD")
+    events = df[df["cusum_event"]]
+    plt.scatter(events.index, events["rolling_std"], marker="o", label="CUSUM events")
+
+    plt.legend()
+    plt.title(f"CUSUM events over rolling volatility for {symbol}")
+    plt.show()
+
+def rollingGarch(df, symbol):
+ returns = df["log_returns"].dropna()
+ returns = returns * 100
+
+ window = 500
+ garch_vol = []
+
+ for i in range(window, len(returns)):
+     r_window = returns.iloc[i-window:i]
+
+     model = arch_model(
+         r_window,
+         vol = "GARCH",
+         p=1,
+         q=1,
+         mean="Zero",
+         dist="normal"
+     )
+     res = model.fit(disp="off")
+     sigma_t = np.sqrt(res.forecast(horizon=1).variance.values[-1,0])
+     garch_vol.append(sigma_t)
+
+     garch_vol = pd.Series(
+         garch_vol,
+         index=returns.index[window:]
+     )
+ df["garch_vol"] = garch_vol
+ return df
+
+def plotGarchRolling(df, symbol):
+     plt.figure(figsize=(12, 6))
+     plt.plot(df.index, df["rolling_std"], label="Rolling STD (60d)")
+     plt.plot(df.index, df["garch_vol"], label="GARCH(1,1) volatility")
+     plt.legend()
+     plt.title(f"Rolling volatility: empirical vs conditional for {symbol}")
+     plt.show()
+

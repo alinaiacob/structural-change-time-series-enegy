@@ -1,5 +1,6 @@
 import pandas as pd
-from utils import addDatesCol, checkNanValues, cleanData, logReturns, logVolume, volZScore, cumsum
+from utils import addDatesCol, checkNanValues, cleanData, logReturns, logVolume, volZScore, cumsum, rollingStd, \
+    plotVolatilityRollingStd, plotOverlayEvents, plotGarchRolling, rollingGarch
 
 next_power = "NXT"
 nextera = "NEE"
@@ -41,7 +42,12 @@ for i in range(len(dataframes)):
     dataframe = volZScore(dataframe)
     print("z score volume", dataframe["vol_zscore_20"])
     cumsum(dataframe, symbol)
+    dataframe = rollingStd(dataframe)
 
+    plotVolatilityRollingStd(dataframe, symbol)
+    plotOverlayEvents(dataframe, symbol)
+    dataframe = rollingGarch(dataframe, symbol)
+    plotGarchRolling(dataframe, symbol)
 
 
 
