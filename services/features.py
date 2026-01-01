@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from data_loader import loadData
+from services.data_loader import loadData
 from utils import logReturns, logVolume, volZScore
 
 
