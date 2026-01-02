@@ -10,6 +10,7 @@ def addDatesCol(df):
     df["Year"] = df["Date"].dt.year
     df["Month"] = df["Date"].dt.month
     df["Day"] = df["Date"].dt.day
+    return df
 
 def checkNanValues(df):
     return df.isna().sum()

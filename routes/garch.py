@@ -7,6 +7,13 @@ router = APIRouter()
 def garchVolatility(ticker):
     df = computeGarch(ticker)
     return{
-        "date":df.index.tolist(),
-        "garch_vol":df["garch_vol"].tolist()
+        "symbol":ticker,
+        "metric":"garch_volatility",
+        "data":[
+            {
+                "date":idx.strftime("%Y-%m-%d"),
+                "value":float(v)
+            }
+            for idx, v in df["garch_vol"].dropna().items()
+        ]
     }
