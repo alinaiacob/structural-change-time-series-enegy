@@ -20,3 +20,7 @@ def marketOverview(ticker):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+# res = marketOverview("NXT")
+# print("res",res)    

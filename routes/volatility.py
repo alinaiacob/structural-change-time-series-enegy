@@ -7,9 +7,9 @@ router = APIRouter()
 def cusum_volatility(ticker):
     df = computeCumsum(ticker)
     return {
-        "date":df.index.tolist(),
-        "rolling_std":df["rolling_std"].tolist(),
-        "cusum":df["cusum_vol"].tolist(),
+        "date":df.index.astype(str).tolist(),
+        "rolling_std":df["rolling_std"].astype(float).tolist(),
+        "cusum":df["cusum_vol"].astype(float).tolist(),
         "events":df["cusum_event"].astype(int).tolist()
     }
 
